@@ -4,34 +4,29 @@
   "description": "For the Discord server Train Central",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-
   "author": "Jgouken",
   "license": "ISC",
   "dependencies": {
     "5": "0.0.1",
     "@discordjs/opus": "^0.3.2",
-    "discord-slash-commands-client": "^1.1.1",
     "discord.js": "^12.2.0",
     "fs": "0.0.1-security",
-    "heroku": "^7.41.1",
     "index.js": "0.0.3",
     "mongodb": "^3.6.2",
     "ms": "^2.1.2",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
     "node.js": "0.0.1-security",
-    "pg": "^8.3.0",
     "pm2": "^4.4.0",
     "pretty-ms": "^7.0.1",
-    "random-words": "^1.1.1",
-    "relevant-urban": "^2.0.0",
     "request": "^2.88.2",
     "sequelize": "^6.3.5",
+    "util": "^0.12.4",
     "ytdl-core": "^3.1.2"
   },
-
   "bugs": {
     "url": "https://github.com/Jgouken/Train-Central/issues"
   },
