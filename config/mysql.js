@@ -12,42 +12,44 @@ var dbName = 'users'
 const query = util.promisify(con.query).bind(con);
 
 async function balance(id) {
-      con.query(`SELECT * FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
-        Object.keys(result, function(key) {
-            var row = result[key];
-            return(row.balance)
-          });
-      })
+    con.query(`SELECT balance FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
+      Object.keys(result).forEach(async function(key) {
+          var row = result[key];
+          var results = JSON.parse(JSON.stringify(row))
+          return(results.balance)
+        });
+    })
 }
 
 async function get(id, column = null) {
-    con.query(`SELECT * FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
-        Object.keys(result, function(key) {
+    con.query(`SELECT ${column} FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
+        Object.keys(result).forEach(function(key) {
             var row = result[key];
+            var results = JSON.parse(JSON.stringify(row))
             switch (column) {
                 case 'team': {
-                    return(row.team)
+                    return(results.team)
                 }
                 case 'balance': {
-                    return(row.balance)
+                    return(results.balance)
                 }
                 case 'currency': {
-                    return(row.currency)
+                    return(results.currency)
                 }
                 case 'income': {
-                    return(row.income)
+                    return(results.income)
                 }
                 case 'job': {
-                    return(row.job)
+                    return(results.job)
                 }
                 case 'earnings': {
-                    return(row.earnings)
+                    return(results.earnings)
                 }
                 case 'transport': {
-                    return(row.transport)
+                    return(results.transport)
                 }
                 default: {
-                    return(row)
+                    return(results)
                 }
             }
         });
@@ -70,7 +72,7 @@ async function removeUser(id) {
     let job = get(id, 'job')
     let earnings = get(id, 'earnings')
     let transport = get(id, 'transport')
-    await query(`INSERT INTO backups (id, team, balance, currency, income, job, earnings, transport) VALUES ('${id}', '${team}', '${balance}', '${currency}', ${income}, '${job}', '${earnings}', '${transport}')`).catch(() => {return})
+    await query(`INSERT INTO backups (id, team, balance, currency, income, job, earnings, transport) VALUES ('${id}', '${team}', '${balance}', '${currency}', '${income}', '${job}', '${earnings}', '${transport}')`).catch(() => {return})
 	await query(`DELETE FROM ${dbName} WHERE id = ${id}`).catch(() => {return})
 }
 
@@ -81,27 +83,4 @@ async function set(id, column, content) {
     })
 }
 
-async function add(id, currency) {
-    let bal = await balance(id)
-    await set(id, 'balance', bal += currency)
-}
-
-async function remove(id, currency) {
-    let bal = balance(id)
-    set(id, 'balance', bal -= currency)
-}
-
-async function balance(id) {
-    return balance(id)
-}
-
-async function leaderboard() {
-    await query(`SELECT * FROM ${dbName} ORDER BY balance LIMIT 10`, function (err, result) {
-        Object.keys(result, function(key) {
-            var row = result[key];
-            return((`**${row.name}:** ${row.balance}\n`).trim())
-          });
-    })
-}
-
-module.exports = {balance, addUsers, removeUser, set, add, remove, get, balance, leaderboard};
+module.exports = {balance, addUsers, removeUser, set, get, balance};
