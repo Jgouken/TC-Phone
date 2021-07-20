@@ -12,25 +12,153 @@ for (const file of commandFiles) {
 bot.on('ready', async () => {
 	if (config.stop == true) return console.log(`\n\n${config.name.toLocaleUpperCase()} IS ONLINE, BUT IS STOPPED!\n\n`);
 	console.log(`\n\n${config.name.toLocaleUpperCase()} IS ONLINE!\n\n`);
+	const guild = bot.guilds.cache.get('851966158651392040')
+	guild.members.cache.forEach(async (member) => {
+        if (!member.user.bot) {
+            await cmysql.query(`INSERT INTO ${cmysql.dbName} (name, id, team, balance, checkbal, income, job, earnings, transport) VALUES ('${member.user.tag}', '${member.user.id}', 'none', '100', '0', '5', 'default', '0', 'none')`).catch(() => {return})
+        }
+    })
+	setInterval(() => {
+		guild.members.cache.forEach((member) => {
+			cmysql.con.query(`SELECT income FROM ${cmysql.dbName} WHERE id = '${member.user.id}'`, async function (err, result, fields) {
+				Object.keys(result).forEach(async function(key) {
+					var inc = Number(JSON.parse(JSON.stringify(result[key])).income)
+					cmysql.con.query(`SELECT earnings FROM ${cmysql.dbName} WHERE id = '${member.user.id}'`, async function (err, result, fields) {
+						Object.keys(result).forEach(async function(key) {
+							var ear = Number(JSON.parse(JSON.stringify(result[key])).earnings)
+							await cmysql.query(`UPDATE ${cmysql.dbName} SET earnings = '${(Number(ear + inc)).toString()}' WHERE id = '${member.user.id}'`, async function (err) {
+								if (err) throw err;
+							  })
+						  });
+					  })
+				  });
+			  })
+		})
+	}, 5 * 60000) // 5 minutes
+
+	bot.api.applications(bot.user.id).guilds('851966158651392040').commands.post({
+		data: {
+			name: "test",
+			description: `This currently does nothing.`,
+		}
+	})
+	bot.api.applications(bot.user.id).guilds('851966158651392040').commands.post({
+		data: {
+			name: "collect",
+			description: `Collect your earnings. Earnings form a check to use at an ATM.`,
+		}
+	})
+	bot.api.applications(bot.user.id).guilds('851966158651392040').commands.post({
+		data: {
+			name: "cash",
+			description: `Collect your check balance at any ATM. Puts it in your check balance.`,
+		}
+	})
+	bot.api.applications(bot.user.id).guilds('851966158651392040').commands.post({
+		data: {
+			name: "embedtoggle",
+			description: `Toggle the option to see embeds or just plain text on the screen.`,
+			choices: [
+				{
+					name: "On",
+					value: `true`,
+				},
+				{
+					name: "Off",
+					value: `false`,
+				},
+			]
+		}
+	})
+	bot.api.applications(bot.user.id).guilds('851966158651392040').commands.post({
+		data: {
+			name: "info",
+			description: `View a user's database/information.`,
+			options: [
+				{
+					name: "user",
+					description: `A mentioned member of the server.`,
+					type: 6,
+					required: false
+				}
+			]
+		}
+	})
+
 });
 
 bot.on("guildMemberAdd", async function(member){
     member.roles.add('860179772202156053')
-	await cmysql.addUsers(bot.guilds.cache.get('851966158651392040'))
+	const guild = bot.guilds.cache.get('851966158651392040')
+	guild.members.cache.forEach(async (member) => {
+        if (!member.user.bot) {
+            await cmysql.query(`INSERT INTO ${cmysql.dbName} (name, id, team, balance, checkbal, income, job, earnings, transport) VALUES ('${member.user.tag}', '${member.user.id}', 'none', '100', '0', '5', 'default', '0', 'none')`).catch(() => {return})
+        }
+    })
 });
 
-bot.on("guildMemberRemove", async function(member){
-    await cmysql.removeUser(member.user.id)
-	await cmysql.addUsers(bot.guilds.cache.get('851966158651392040'))
+bot.on("guildMemberRemove", async function(member) {
+	const guild = bot.guilds.cache.get('851966158651392040')
+	
+	function get(id, column = null) {
+		cmysql.con.query(`SELECT ${column} FROM ${cmysql.dbName} WHERE id = '${id}'`, function (err, result, fields) {
+			Object.keys(result).forEach(function(key) {
+				switch (column) {
+					case 'team': {
+						return JSON.parse(JSON.stringify(result[key])).team
+					}
+					case 'balance': {
+						return JSON.parse(JSON.stringify(result[key])).balance
+					}
+					case 'income': {
+						return JSON.parse(JSON.stringify(result[key])).income
+					}
+					case 'job': {
+						return JSON.parse(JSON.stringify(result[key])).job
+					}
+					case 'earnings': {
+						return JSON.parse(JSON.stringify(result[key])).earnings
+					}
+					case 'transport': {
+						return JSON.parse(JSON.stringify(result[key])).transport
+					}
+					default: {
+						return JSON.parse(JSON.stringify(result[key]))
+					}
+				}
+			});
+		})
+	}
+
+    let team = get(member.user.id, 'team')
+    let balance = get(member.user.id, 'balance')
+    let income = get(member.user.id, 'income')
+    let job = get(member.user.id, 'job')
+    let earnings = get(member.user.id, 'earnings')
+    let transport = get(member.user.id, 'transport')
+    await cmysql.query(`INSERT INTO backups (id, team, balance, checkbal, income, job, earnings, transport) VALUES ('${member.user.id}', '${team}', '${balance}', '${income}', '${job}', '${earnings}', '${transport}')`).catch(() => {return})
+	await cmysql.query(`DELETE FROM ${cmysql.dbName} WHERE id = ${id}`).catch(() => {return})
+	guild.members.cache.forEach(async (member) => {
+        if (!member.user.bot) {
+            await cmysql.query(`INSERT INTO ${cmysql.dbName} (name, id, team, balance, checkbal, income, job, earnings, transport) VALUES ('${member.user.tag}', '${member.user.id}', 'none', '100', '0', '5', 'default', '0', 'none')`).catch(() => {return})
+        }
+    })
 });
 
 bot.ws.on('INTERACTION_CREATE', async interaction => {
 	const command = interaction.data.name.toLocaleLowerCase();
 	const channel = bot.channels.cache.get(interaction.channel_id)
 	const author = bot.users.cache.get(interaction.member.user.id)
-	const authbal = await cmysql.balance(author.id)
 	const called = bot.commands.get(command)
-	if (called) called.execute(interaction, author, channel5, config, cmysql, bot, authbal);
+	const logs = bot.channels.cache.get('866752352660881468')
+	var embeds = true
+	cmysql.con.query(`SELECT embed FROM ${cmysql.dbName} WHERE id = '${author.id}'`, function (err, result, fields) {
+		Object.keys(result).forEach(function(key) {
+			let res = Number(JSON.parse(JSON.stringify(result[key])).embed)
+			if (res == 0) embeds = false
+			if (called) called.execute(interaction, author, embeds, channel, logs, config, cmysql, bot);
+		});
+	})
 
 	/*
 		TO CREATE THE COMMAND:
@@ -77,12 +205,13 @@ bot.ws.on('INTERACTION_CREATE', async interaction => {
         if (notargs) var args = notargs.value
 
 		bot.api.interactions(interaction.id, interaction.token).callback.post({
-			type: 5
+			data: {
+				type: 5
+			}
       	})
 		
 		TYPES:
-		1: Acknowledge; Send no message, but accept the interaction.
-		4: Respond with a message; Requires: data:{content:``}
+		4: Respond with a message; Requires: data:{content:``} in data.
 		5: Ackowledge and show Loading, then use type 4.
 
 		https://discord.com/developers/docs/interactions/slash-commands#data-models-and-types

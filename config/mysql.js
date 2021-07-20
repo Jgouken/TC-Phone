@@ -10,46 +10,44 @@ let con = mysql.createConnection({
 con.connect();
 var dbName = 'users'
 const query = util.promisify(con.query).bind(con);
+module.exports = {con, query, dbName}
 
+/*
 async function balance(id) {
-    con.query(`SELECT balance FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
+    cmysql.con.query(`SELECT balance FROM ${cmysql.dbName} WHERE id = '${author.id}'`, async function (err, result, fields) {
       Object.keys(result).forEach(async function(key) {
-          var row = result[key];
-          var results = JSON.parse(JSON.stringify(row))
-          return(results.balance)
+          var bal = JSON.parse(JSON.stringify(result[key])).balance
         });
     })
 }
 
 async function get(id, column = null) {
-    con.query(`SELECT ${column} FROM ${dbName} WHERE id = '${id}'`, function (err, result, fields) {
+    cmysql.con.query(`SELECT ${column} FROM ${cmysql.dbName} WHERE id = '${author.id}'`, async function (err, result, fields) {
         Object.keys(result).forEach(function(key) {
-            var row = result[key];
-            var results = JSON.parse(JSON.stringify(row))
             switch (column) {
                 case 'team': {
-                    return(results.team)
+                    return JSON.parse(JSON.stringify(result[key])).team
                 }
                 case 'balance': {
-                    return(results.balance)
+                    return JSON.parse(JSON.stringify(result[key])).balance
                 }
                 case 'currency': {
-                    return(results.currency)
+                    return JSON.parse(JSON.stringify(result[key])).currency
                 }
                 case 'income': {
-                    return(results.income)
+                    return JSON.parse(JSON.stringify(result[key])).income
                 }
                 case 'job': {
-                    return(results.job)
+                    return JSON.parse(JSON.stringify(result[key])).job
                 }
                 case 'earnings': {
-                    return(results.earnings)
+                    return JSON.parse(JSON.stringify(result[key])).earnings
                 }
                 case 'transport': {
-                    return(results.transport)
+                    return JSON.parse(JSON.stringify(result[key])).transport
                 }
                 default: {
-                    return(results)
+                    return JSON.parse(JSON.stringify(result[key]))
                 }
             }
         });
@@ -59,7 +57,7 @@ async function get(id, column = null) {
 async function addUsers(guild) {
     guild.members.cache.forEach(async (member) => {
         if (!member.user.bot && !get(member.user.id)) {
-            await query(`INSERT INTO ${dbName} (id, team, balance, currency, income, job, earnings, transport, name) VALUES ('${member.user.id}', 'none', '0', '$', 5, 'default', '0', 'none', '${member.user.tag}')`).catch(() => {return})
+            await cmysql.query(`INSERT INTO ${cmysql.dbName} (id, team, balance, currency, income, job, earnings, transport, name) VALUES ('${member.user.id}', 'none', '0', '$', 5, 'default', '0', 'none', '${member.user.tag}')`).catch(() => {return})
         }
     })
 }
@@ -72,15 +70,37 @@ async function removeUser(id) {
     let job = get(id, 'job')
     let earnings = get(id, 'earnings')
     let transport = get(id, 'transport')
-    await query(`INSERT INTO backups (id, team, balance, currency, income, job, earnings, transport) VALUES ('${id}', '${team}', '${balance}', '${currency}', '${income}', '${job}', '${earnings}', '${transport}')`).catch(() => {return})
-	await query(`DELETE FROM ${dbName} WHERE id = ${id}`).catch(() => {return})
+    await cmysql.query(`INSERT INTO backups (id, team, balance, currency, income, job, earnings, transport) VALUES ('${author.id}', '${team}', '${balance}', '${currency}', '${income}', '${job}', '${earnings}', '${transport}')`).catch(() => {return})
+	await cmysql.query(`DELETE FROM ${cmysql.dbName} WHERE id = ${author.id}`).catch(() => {return})
 }
 
 async function set(id, column, content) {
-    let sql = `UPDATE ${dbName} SET ${column} = '${content}' WHERE id = '${id}'`;
-    await query(sql, function (err) {
+    await cmysql.query(`UPDATE ${cmysql.dbName} SET ${column} = '${content}' WHERE id = '${author.id}'`, async function (err) {
         if (err) throw err;
     })
 }
 
-module.exports = {balance, addUsers, removeUser, set, get, balance};
+async function add(id, amount) {
+    cmysql.con.query(`SELECT balance FROM ${cmysql.dbName} WHERE id = '${author.id}'`, async function (err, result, fields) {
+      Object.keys(result).forEach(async function(key) {
+          var bal = JSON.parse(JSON.stringify(result[key])).balance
+          await cmysql.query(`UPDATE ${cmysql.dbName} SET balance = '${bal + <amount>}' WHERE id = '${author.id}'`, async function (err) {
+            if (err) throw err;
+          })
+        });
+    })
+
+}
+
+async function remove(id, amount) {
+    cmysql.con.query(`SELECT balance FROM ${cmysql.dbName} WHERE id = '${author.id}'`, async function (err, result, fields) {
+      Object.keys(result).forEach(async function(key) {
+          var bal = JSON.parse(JSON.stringify(result[key])).balance
+          await cmysql.query(`UPDATE ${cmysql.dbName} SET balance = '${bal - <amount>}' WHERE id = '${author.id}'`, async function (err) {
+            if (err) throw err;
+          })
+        });
+    })
+
+}
+*/
