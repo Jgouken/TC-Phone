@@ -39,11 +39,11 @@ module.exports = {
                                 break;
                             }
                             case 'checkbal': {
-                                embed.addField(`Check Balance`, `(uncashed balance)\n$${value}`, true)
+                                embed.addField(`Check Balance`, `(uncashed balance)\n$${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`, true)
                                 break;
                             }
                             case 'income': {
-                                embed.addField(`Income`, `$${value} every 5 minutes`, true)
+                                embed.addField(`Income`, `$${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} every 5 minutes`, true)
                                 break;
                             }
                             case 'job': {
@@ -51,7 +51,7 @@ module.exports = {
                                 break;
                             }
                             case 'earnings': {
-                                embed.addField(`Earnings`, `(uncollected balance)\n$${value}`, true)
+                                embed.addField(`Earnings`, `(uncollected balance)\n$${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`, true)
                                 break;
                             }
                             case 'transport': {
@@ -81,15 +81,15 @@ module.exports = {
                                 break;
                             }
                             case 'balance': {
-                                embed.push(`**Balance:** $${value}`)
+                                embed.push(`**Balance:** $${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`)
                                 break;
                             }
                             case 'checkbal': {
-                                embed.push(`**Check Balance (uncashed balance):** $${value}`)
+                                embed.push(`**Check Balance (uncashed balance):** $${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`)
                                 break;
                             }
                             case 'income': {
-                                embed.push(`**Income:** $${value} every 5 minutes`)
+                                embed.push(`**Income:** $${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} every 5 minutes`)
                                 break;
                             }
                             case 'job': {
@@ -97,7 +97,7 @@ module.exports = {
                                 break;
                             }
                             case 'earnings': {
-                                embed.push(`**Earnings (uncollected balance):** ${value}`)
+                                embed.push(`**Earnings (uncollected balance):** $${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`)
                                 break;
                             }
                             case 'transport': {

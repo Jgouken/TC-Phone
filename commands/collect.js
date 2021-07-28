@@ -58,8 +58,8 @@ module.exports = {
                             data: {
                                 embeds: [
                                     {
-                                        title: `**$${ear}** put in an Online Check!`,
-                                        description: `**$${ear}** has been put into an online check. Deposit it in an ATM to add it to your balance.`
+                                        title: `**$${ear.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}** put in an Online Check!`,
+                                        description: `**$${ear.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}** has been put into an online check. Deposit it in an ATM to add it to your balance.`
                                     }
                                 ],
                                 flags: 1 << 6
@@ -71,7 +71,7 @@ module.exports = {
                         data: {
                             type: 4,
                             data: {
-                                content: `**$${ear}** has been put into an online check. Deposit it in an ATM to add it to your balance.`,
+                                content: `**$${ear.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}** has been put into an online check. Deposit it in an ATM to add it to your balance.`,
                                 flags: 1 << 6
                             }
                         }
@@ -81,7 +81,7 @@ module.exports = {
                 logs.send({
                     embed: {
                         title: `${author.tag} used **/collect**`,
-                        description: `**$${ear}** has been put into an online check.`,
+                        description: `**$${ear.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}** has been put into an online check.`,
                         thumbnail: {
                             url: `${author.avatarURL()}?size=1024`
                         },
